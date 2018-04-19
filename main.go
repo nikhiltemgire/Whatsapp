@@ -1,21 +1,21 @@
 package main
 
-import (
-	"Whatsapp/servicehandlers"
-	"log"
-	"net/http"
-)
+import "Whatsapp/dao"
 
 func main() {
 
-	p := servicehandlers.PingHandler{}
-	a := servicehandlers.AuthenticateHandler{}
-	u := servicehandlers.UserHandler{}
+	// fmt.Println(bson.ObjectIdHex("5a9cfc741b2a6104c061b24f"))
 
-	http.Handle("/ping", p)
-	http.Handle("/authenticate", a)
-	http.Handle("/users", u)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	dao.CreateEmptyChatList("5a9cfc741b2a6104c061b24f")
+
+	// p := servicehandlers.PingHandler{}
+	// a := servicehandlers.AuthenticateHandler{}
+	// u := servicehandlers.UserHandler{}
+
+	// http.Handle("/ping", p)
+	// http.Handle("/authenticate", a)
+	// http.Handle("/users", u)
+	// log.Fatal(http.ListenAndServe(":8080", nil))
 
 	// users := dao.GetAllUsers()
 	// for _, u := range users {

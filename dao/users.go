@@ -7,13 +7,14 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// User : User db Structure
 type User struct {
 	ID       bson.ObjectId `json:"id" bson:"_id"`
 	Email    string        `json:"email" bson:"email"`
 	Password string        `json:"password" bson:"password"`
 }
 
-var userCollection = getUserCollection(session)
+var userCollection = GetUserCollection(session)
 
 // GetAllUsers returns all users from users collection
 func GetAllUsers() []User {

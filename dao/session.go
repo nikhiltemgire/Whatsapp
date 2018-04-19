@@ -17,7 +17,7 @@ type UserSession struct {
 	LastLogin time.Time     `json:"lastlogin" bson:"lastlogin"`
 }
 
-var sessionCollection = getSessionCollection(session)
+var sessionCollection = GetSessionCollection(session)
 
 // GetAllSession : Returns all the User Sessions
 func GetAllSession() []UserSession {
