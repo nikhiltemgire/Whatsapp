@@ -43,11 +43,19 @@ func CreateSession(userObjectID bson.ObjectId) string {
 		Token:     createUID().String(),
 		LastLogin: time.Now()}
 
-	err := sessionCollection.Insert(&us)
+	err := sessionCollection.Find(bson.M{"_id": userObjectID}).One(&us)
 
-	if err != nil {
-		panic(err)
+	if err == mgo.ErrNotFound {
+		err = sessionCollection.Insert(&us)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		sessionCollection.Update(
+			bson.M{"_id": userObjectID},
+			bson.M{"$set": bson.M{"token": us.Token}})
 	}
+
 	return us.Token
 }
 

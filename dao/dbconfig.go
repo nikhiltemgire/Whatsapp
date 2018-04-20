@@ -2,14 +2,15 @@ package dao
 
 import mgo "gopkg.in/mgo.v2"
 
-const dbName = "Whatsapp"
+const dbName = "ChatService"
 const hostname = "127.0.0.1"
 
 const (
-	userdb     = "users"
-	sessiondb  = "sessions"
-	chatListdb = "chatlist"
-	chatsdb    = "chats"
+	userdb         = "users"
+	userProfilesdb = "userProfiles"
+	sessiondb      = "sessions"
+	chatListdb     = "chatlist"
+	chatsdb        = "chats"
 )
 
 var session = getDatabaseSession()
@@ -32,6 +33,11 @@ func closeDatabaseSession(s *mgo.Session) {
 // GetUserCollection : Returns User Collection handler
 func GetUserCollection(s *mgo.Session) *mgo.Collection {
 	return s.DB(dbName).C(userdb)
+}
+
+// GetUserProfilesCollection : Returns Chat List Collection handler
+func GetUserProfilesCollection(s *mgo.Session) *mgo.Collection {
+	return s.DB(dbName).C(userProfilesdb)
 }
 
 // GetSessionCollection : Returns Session Collection handler

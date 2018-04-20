@@ -1,11 +1,12 @@
 package servicehandlers
 
 import (
-	"eagoauthentication/dao"
+	"Whatsapp/dao"
 	"encoding/json"
 	"net/http"
 )
 
+// AuthenticateHandler : AuthenticateHandler of Chatservice
 type AuthenticateHandler struct {
 }
 
@@ -13,22 +14,20 @@ func (p AuthenticateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	methodRouter(p, w, r)
 }
 
+// Get : Authenciate Get Method
 func (p AuthenticateHandler) Get(r *http.Request) (string, int) {
-	return "AUTHENTICATE GET Called", 200
+	return "Method Not Allowed", 200
 }
 
+// Put : Authenciate Put Method
 func (p AuthenticateHandler) Put(r *http.Request) (string, int) {
-	return "AUTHENTICATE PUT Called", 200
+	return "Method Not Allowed", 200
 }
 
+// Post : Authenciate Post Method
 func (p AuthenticateHandler) Post(r *http.Request) (string, int) {
 
-	type authenticateBody struct {
-		Email    string
-		Password string
-	}
-
-	var payload authenticateBody
+	var payload dao.User
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&payload)
 
