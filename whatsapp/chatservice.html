@@ -1,0 +1,99 @@
+<head>
+    <title>Chat Service</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+
+</head>
+
+<body ng-app="chatservice">
+
+    <div class="page-header">
+        <h1>&nbsp&nbsp&nbsp&nbsp&nbspChat Service</h1>
+    </div>
+
+    <div style="margin-left: 5%;">
+        <div class="col-md-12" ng-controller="chatCtrl">
+            <div class="col-md-4" >
+                <div class="table-responsive" style="height: 80%;">
+                    <table class="table" ng-model="chatlist">
+
+                    </table>
+                </div>
+                
+            </div>
+            <div class="col-md-8" >
+                <h1>HOIIIIIIIIIIIIIIIIIII</h1>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module("chatservice", []);
+
+        app.controller('loginCtrl', function ($scope, $http, $window) {
+
+            // Login Method 
+            $scope.login = function () {
+                $http({
+                    method: "GET",
+                    url: "http://192.168.0.102/chatservice/chatlist",
+                    header: {
+                        "Content-Type": "application/json",
+                        "token" : localStorage.getItem("token")
+                    },
+                }).then(
+                    function mySuccess(response) {
+                        localStorage.setItem("token", response.data)
+                        alert("logged in")
+                    },
+                    function myError(response) {
+                        if (response.status == 400)
+                            alert("Invalid Email/Password");
+                        else
+                            alert("Error!" + response.status + response.data);
+                        // alert(response.data.response);
+                    });
+            }
+
+            $scope.register = function () {
+                $http({
+                    method: "POST",
+                    url: "http://192.168.0.102/chatservice/users",
+                    header: {
+                        "Content-Type": "application/json"
+                    },
+                    data: {
+                        "email": $scope.email,
+                        "password": $scope.password
+                    }
+                }).then(
+                    function onSuccess(response) {
+                        alert("Registeration Complete");
+
+                        localStorage.setItem("email", $scope.email)
+                        localStorage.setItem("id", response.data)
+
+                        $window.location.href = '/whatsapp/userprofile.html';
+                    },
+                    function onFailure(response) {
+                        if (response.status == 422)
+                            alert("User Already Exists");
+                        else if (response.status == 500)
+                            alert("Internal Server Error")
+                        else
+                            alert("Some Other Error " + response.status)
+                    }
+                )
+
+            }
+        });
+    </script>
+</body>
+
+</html>
