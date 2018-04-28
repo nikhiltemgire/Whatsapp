@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// HttpServiceHandler : Restful Http Handler
+// HTTPServiceHandler : Restful Http Handler
 type HTTPServiceHandler interface {
 	Get(*http.Request) (string, int)
 	Put(*http.Request) (string, int)
