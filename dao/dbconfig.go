@@ -11,6 +11,7 @@ const (
 	sessiondb      = "sessions"
 	chatListdb     = "chatlist"
 	chatsdb        = "chats"
+	messagesdb     = "messages"
 )
 
 var session = getDatabaseSession()
@@ -53,4 +54,9 @@ func GetChatListCollection(s *mgo.Session) *mgo.Collection {
 // GetChatsCollection : Returns Chat List Collection handler
 func GetChatsCollection(s *mgo.Session) *mgo.Collection {
 	return s.DB(dbName).C(chatsdb)
+}
+
+// GetMessagesCollection : Returns Messages Collection handler
+func GetMessagesCollection(s *mgo.Session) *mgo.Collection {
+	return s.DB(dbName).C(messagesdb)
 }

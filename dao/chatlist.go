@@ -14,8 +14,9 @@ var chatListCollection = GetChatListCollection(session)
 // Contains information regarding Other user in chat with
 type ChatListEntry struct {
 	ChatID         bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	DisplayName    string
-	DisplayPicture string
+	DisplayName    string        `json:"disp_name" bson:"disp_name"`
+	DisplayPicture string        `json:"disp_pic" bson:"disp_pic"`
+	ProfileID      bson.ObjectId `json:"profile_id" bson:"profile_id"`
 }
 
 // ChatList : Structure of Chatlist in MongoDB
@@ -29,9 +30,10 @@ func GetChatList(userID bson.ObjectId) ChatList {
 	var chatlist ChatList
 
 	err := chatListCollection.Find(
-		bson.M{"UserID": userID}).One(&chatlist)
+		bson.M{"_id": userID}).One(&chatlist)
 
 	if err == mgo.ErrNotFound {
+		fmt.Print("Not Found ", userID)
 		return ChatList{}
 	} else if err != nil {
 		panic(err)
@@ -60,18 +62,18 @@ func CreateEmptyChatList(ownerID bson.ObjectId) {
 
 // CreateChatListEntry : Creates a ChatListEnry Object
 func CreateChatListEntry(ID bson.ObjectId,
-	displayName string, displayPicture string) ChatListEntry {
+	displayName string, displayPicture string, profileID bson.ObjectId) ChatListEntry {
 
-	return ChatListEntry{ID, displayName, displayPicture}
+	return ChatListEntry{ID, displayName, displayPicture, profileID}
 }
 
 // AddChat : Adds a chat instance between user1 and user2
 func AddChat(user1 UserProfile, user2 UserProfile) bool {
 
-	chatID := bson.NewObjectId()
+	chatID := CreateChat(user1.ID, user2.ID)
 
-	user1ListEntry := CreateChatListEntry(chatID, user2.DisplayName, "")
-	user2ListEntry := CreateChatListEntry(chatID, user1.DisplayName, "")
+	user1ListEntry := CreateChatListEntry(chatID, user2.DisplayName, "", user2.ID)
+	user2ListEntry := CreateChatListEntry(chatID, user1.DisplayName, "", user1.ID)
 
 	err := chatListCollection.Update(
 		bson.M{"_id": user1.ID},
@@ -88,5 +90,6 @@ func AddChat(user1 UserProfile, user2 UserProfile) bool {
 	if err != nil {
 		return false
 	}
+
 	return true
 }

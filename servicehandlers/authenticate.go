@@ -35,10 +35,14 @@ func (p AuthenticateHandler) Post(r *http.Request) (string, int) {
 		panic(err)
 	}
 
+	user := dao.GetUserByEmail(payload.Email)
+	if (dao.User{}) == user {
+		return "Invalid Email", 401
+	}
+
 	if !dao.AuthenticateUser(payload.Email, payload.Password) {
 		return "Invalid Email or Password", 400
 	}
-	user := dao.GetUserByEmail(payload.Email)
 	token := dao.CreateSession(user.ID)
 
 	return token, 200

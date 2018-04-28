@@ -17,6 +17,7 @@ func (p UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Get : UserHandler Get Method
 func (p UserHandler) Get(r *http.Request) (string, int) {
+
 	return "GET Called", 200
 }
 

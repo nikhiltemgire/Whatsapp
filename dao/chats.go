@@ -7,10 +7,9 @@ import (
 
 // Chats : Chat Structure in MongoDB
 type Chats struct {
-	ID       bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	User1    bson.ObjectId
-	User2    bson.ObjectId
-	Messages []bson.ObjectId
+	ID       bson.ObjectId   `json:"id" bson:"_id"`
+	Members  []bson.ObjectId `json:"members" bson:"members"`
+	Messages []bson.ObjectId `json:"messages" bson:"messages"`
 }
 
 var chatsCollection = GetChatsCollection(session)
@@ -20,13 +19,13 @@ func CreateChat(user1 bson.ObjectId,
 	user2 bson.ObjectId) bson.ObjectId {
 
 	var messages []bson.ObjectId
+	members := []bson.ObjectId{user1, user2}
 	id := bson.NewObjectId()
 
 	err := chatsCollection.Insert(
 		Chats{
 			ID:       id,
-			User1:    user1,
-			User2:    user2,
+			Members:  members,
 			Messages: messages})
 
 	if err != nil {
@@ -35,7 +34,7 @@ func CreateChat(user1 bson.ObjectId,
 	return id
 }
 
-//GetChat : Returns the Chat Object associated with ChatID
+// GetChat : Returns the Chat Object associated with ChatID
 func GetChat(chatID bson.ObjectId) Chats {
 	var chat Chats
 
@@ -48,4 +47,16 @@ func GetChat(chatID bson.ObjectId) Chats {
 	}
 
 	return chat
+}
+
+// AddMessageToChat : Adds message to chat
+func AddMessageToChat(chatID bson.ObjectId, msgID bson.ObjectId) {
+
+	err := chatListCollection.Update(
+		bson.M{"_id": chatID},
+		bson.M{"$push": bson.M{"messages": msgID}})
+
+	if err != nil {
+		panic(err)
+	}
 }

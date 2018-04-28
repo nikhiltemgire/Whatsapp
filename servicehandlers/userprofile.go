@@ -20,6 +20,11 @@ func (p UserProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Get : UserProfileHandler Get Method
 func (p UserProfileHandler) Get(r *http.Request) (string, int) {
+
+	if !AuthenticateUser(r) {
+		return "Unauthorized Access", 401
+	}
+
 	keys, ok := r.URL.Query()["user_id"]
 
 	if !ok || len(keys) < 1 {
@@ -28,6 +33,11 @@ func (p UserProfileHandler) Get(r *http.Request) (string, int) {
 	}
 	userID := bson.ObjectIdHex(keys[0])
 	userProfile := dao.GetUserProfileByID(userID)
+
+	if (userProfile == dao.UserProfile{}) {
+		// fmt.Println(userID)
+		return "Profile Not Found", 404
+	}
 
 	return utils.StructToJSONString(userProfile), 200
 }
@@ -59,6 +69,8 @@ func (p UserProfileHandler) Post(r *http.Request) (string, int) {
 
 	success := dao.CreateUserProfile(payload.ID, payload.Email,
 		payload.DisplayName, payload.About)
+
+	dao.CreateEmptyChatList(payload.ID)
 
 	if success {
 		return "ok", 200

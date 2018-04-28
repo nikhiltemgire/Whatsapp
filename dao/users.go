@@ -2,7 +2,7 @@ package dao
 
 import (
 	"Whatsapp/utils"
-	"fmt"
+	"log"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -48,11 +48,9 @@ func GetUserByEmail(email string) User {
 func AuthenticateUser(email string, password string) bool {
 	user := GetUserByEmail(email)
 
-	pass := utils.GetMD5Hash(password)
-	fmt.Println("In Authenticate:", password, pass)
-	fmt.Println(pass, user.Password)
-
-	if pass == user.Password {
+	var u User
+	u.Password = utils.GetMD5Hash(password)
+	if u.Password == user.Password {
 		return true
 	}
 	return false
@@ -65,9 +63,12 @@ func CreateUser(id bson.ObjectId, email string, password string) bool {
 	user.Email = email
 	user.Password = utils.GetMD5Hash(password)
 
-	fmt.Println("In Create User:", password, user.Password)
+	// fmt.Println("In Create User:", password, user.Password)
+
 	err := userCollection.Insert(&user)
+
 	if err != nil {
+		log.Println("Error while CreateUser")
 		return false
 	}
 	return true

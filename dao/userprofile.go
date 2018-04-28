@@ -47,6 +47,7 @@ func GetUserProfileByID(userID bson.ObjectId) UserProfile {
 	err := userProfileCollection.Find(bson.M{"_id": userID}).One(&up)
 
 	if err == mgo.ErrNotFound {
+		// fmt.Print("lel")
 		return up
 	} else if err != nil {
 		log.Println("Error in GetUserProfileByID")
