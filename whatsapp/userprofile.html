@@ -1,0 +1,83 @@
+<html lang="en">
+
+<head>
+  <title>Chat Service</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  
+
+</head>
+
+<body ng-app="userProfileService">
+
+  <div class="page-header">
+    <h1>&nbsp&nbsp&nbsp&nbsp&nbspChat Service</h1>
+  </div>
+
+  <!-- Login -->
+  <div class="container">
+    <div class="col-xs-4" ng-controller="userProfileCtrl">
+
+      <h2 class="media-heading"> User Profile </h2>
+      <br>
+      <br>
+      <label for="name">Display Name:</label>
+      <input type="text" class="form-control" ng-model="display_name" placeholder="This name will be visible to everyone">
+      <br>
+      <label for="About">About:</label>
+      <input type="text" class="form-control" ng-model="about" value="Hey there, I'm New here!">
+      <br>
+      <br>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary" ng-click="createProfile()">Create Profile</button>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+    var app = angular.module("userProfileService", []);
+
+    app.controller('userProfileCtrl', function ($window, $scope, $http) {
+
+        $scope.createProfile = function() {
+            $http({
+                method: "POST",
+                url: "http://192.168.43.71/chatservice/userprofile",
+                header: {
+                    "Content-Type": "application/json"
+                },
+                data: {
+                    "id" : localStorage.getItem("id"),
+                    "email": localStorage.getItem("email"),
+                    "display_name": $scope.display_name,
+                    "about": $scope.about
+                }
+            }).then(
+                function mySuccess(response) {
+                    localStorage.removeItem("id")
+                    localStorage.removeItem("email")
+                    alert("Profile Created. Please Login to Continue")
+                    $window.location.href = '/whatsapp/login.html'
+                },
+                function myError(response) {
+                    if (response.status == 500)
+                        alert("Internal Server Error");
+                    else if (response.status == 400)
+                        alert("Bad Request");
+                    else
+                        alert("Error! " + response.status);
+                    // alert(response.data.response);
+                });
+        }
+    });
+
+</script>

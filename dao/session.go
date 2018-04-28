@@ -17,7 +17,7 @@ type UserSession struct {
 	LastLogin time.Time     `json:"lastlogin" bson:"lastlogin"`
 }
 
-var sessionCollection = getSessionCollection(session)
+var sessionCollection = GetSessionCollection(session)
 
 // GetAllSession : Returns all the User Sessions
 func GetAllSession() []UserSession {
@@ -35,6 +35,23 @@ func GetAllSession() []UserSession {
 	return usersessions
 }
 
+// GetUserIDByToken : Returns UserID assigned yo token
+func GetUserIDByToken(token string) bson.ObjectId {
+	var usersession UserSession
+
+	err := sessionCollection.Find(bson.M{"token": token}).One(&usersession)
+
+	if err == mgo.ErrNotFound {
+		print("Session Collection: Not Found")
+		return usersession.UserID
+	} else if err != nil {
+		panic(err)
+	}
+
+	return usersession.UserID
+
+}
+
 //CreateSession : Creates a new session for a user
 func CreateSession(userObjectID bson.ObjectId) string {
 
@@ -43,11 +60,19 @@ func CreateSession(userObjectID bson.ObjectId) string {
 		Token:     createUID().String(),
 		LastLogin: time.Now()}
 
-	err := sessionCollection.Insert(&us)
+	err := sessionCollection.Find(bson.M{"_id": userObjectID}).One(&us)
 
-	if err != nil {
-		panic(err)
+	if err == mgo.ErrNotFound {
+		err = sessionCollection.Insert(&us)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		sessionCollection.Update(
+			bson.M{"_id": userObjectID},
+			bson.M{"$set": bson.M{"token": us.Token}})
 	}
+
 	return us.Token
 }
 
