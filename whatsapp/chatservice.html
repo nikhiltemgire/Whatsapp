@@ -3,12 +3,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>    
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
 
+    
 </head>
 
 <body ng-app="chatservice">
@@ -19,81 +22,233 @@
 
     <div style="margin-left: 5%;">
         <div class="col-md-12" ng-controller="chatCtrl">
+            
             <div class="col-md-4" >
-                <div class="table-responsive" style="height: 80%;">
-                    <table class="table" ng-model="chatlist">
-
+                <div class="table-responsive " style="height: 80%; ">
+                    <table class="table table-bordered" ng-model="chatlist" style="border: 3px">
+                        <tr>
+                            <th> ChatList</th>
+                            <th> <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChatModal">Create New Chat</button> </th>
+                        </tr>
+                        <tr ng-repeat="chat in chatlist">
+                            <td> {{chat["disp_name"]}}</td>
+                            <!-- <td> {{chat["id"]}}</td> -->
+                            <td> Message</td>
+                            <td ng-click="show_profile(chat['profile_id'])">Profile</td>
+                        </tr>
                     </table>
                 </div>
                 
             </div>
-            <div class="col-md-8" >
-                <h1>HOIIIIIIIIIIIIIIIIIII</h1>
+
+
+            <div class="col-md-8" class="tab-container" >
+                <div ng-repeat="chat in chatlist"
+                 ng-model="chat['id']" ng-init="loadChats(chat['id'])"
+                 ng-controller="chatCtrl" style="height: 80%; ">
+
+                    <div ng-repeat="for msg in messages['chat_id':chat['id']]">
+                        
+                    </div>
+                    
+                     <input class="form-control" type="text" id="content">
+                     <button class="btn btn-primary" ng-click="sendMessage(chat['id'], document.getElementById('content').value)"> Send</button>
+                </div>
+
+
             </div>
         </div>
     </div>
 
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="addChatModal" role="dialog">
+        <div class="modal-dialog">
+    
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Create New Chat</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Please Enter Email Address of Other User: </p>
+                    <input type="text" class="form-control" ng-model="email" id="email">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                    onclick="createChat(email.value)">Create Chat</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+    
+        </div>
+    </div>
+
     <script>
-        var app = angular.module("chatservice", []);
+        var app = angular.module("chatservice", ['ui.bootstrap']);
+        
 
-        app.controller('loginCtrl', function ($scope, $http, $window) {
+        app.controller('chatCtrl', function ($scope, $http, $window, $uibModal) {
+            var token = localStorage.getItem("token")
+            // $scope.messages = []
+            
+            $http({
+                method: "GET",
+                url: "http://192.168.43.71/chatservice/chatlist",
+                headers: {
+                    "Content-Type": "application/json",
+                    "token" : token
+                }
+            }).then(
+                function mySuccess(response) {
+                    data = response.data
+                    
+                    $scope.chatlist = data["chatlist"]
 
-            // Login Method 
-            $scope.login = function () {
+                },
+                function myError(response) {
+                    console.log(localStorage.getItem("token"))
+                    alert("[Chatlist] " + response.status+" "+ response.data);
+                }
+            );
+
+            $scope.loadChats = function (chat_id) {
                 $http({
                     method: "GET",
-                    url: "http://192.168.0.102/chatservice/chatlist",
-                    header: {
+                    url: "http://192.168.43.71/chatservice/messages",
+                    headers: {
                         "Content-Type": "application/json",
-                        "token" : localStorage.getItem("token")
+                        "token": localStorage.getItem("token")
                     },
+                    params: {
+                        "chat_id": chat_id
+                    }
                 }).then(
                     function mySuccess(response) {
-                        localStorage.setItem("token", response.data)
-                        alert("logged in")
+                        $scope.messages.push({
+                                "chat_id": chat_id,
+                                "messages" : response.data
+                            })
+                        console.log($scope.messages)
                     },
                     function myError(response) {
-                        if (response.status == 400)
-                            alert("Invalid Email/Password");
-                        else
-                            alert("Error!" + response.status + response.data);
-                        // alert(response.data.response);
-                    });
+                        alert(response.status + " " + response.data);
+                    }
+                );
+
             }
 
-            $scope.register = function () {
-                $http({
+            $scope.sendMessage = function (chat_id, content) {
+                alert(content)
+                 $http({
                     method: "POST",
-                    url: "http://192.168.0.102/chatservice/users",
-                    header: {
-                        "Content-Type": "application/json"
+                    url: "http://192.168.43.71/chatservice/messages",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": localStorage.getItem("token")
                     },
                     data: {
-                        "email": $scope.email,
-                        "password": $scope.password
+                        "chat_id": chat_id,
+                        "type": 1,
+                        "content": "xxx",
+                        "sender_name": ""
                     }
                 }).then(
-                    function onSuccess(response) {
-                        alert("Registeration Complete");
-
-                        localStorage.setItem("email", $scope.email)
-                        localStorage.setItem("id", response.data)
-
-                        $window.location.href = '/whatsapp/userprofile.html';
+                    function mySuccess(response) {
+                        $scope.messages.push({
+                            "chat_id": chat_id,
+                            "messages": response.data
+                        })
+                        console.log($scope.messages)
                     },
-                    function onFailure(response) {
-                        if (response.status == 422)
-                            alert("User Already Exists");
-                        else if (response.status == 500)
-                            alert("Internal Server Error")
-                        else
-                            alert("Some Other Error " + response.status)
+                    function myError(response) {
+                        alert(response.status + " " + response.data);
                     }
-                )
+                );
+                
+            }
+
+
+            createChat = function(email) {
+                $http({
+                    method: "PUT",
+                    url: "http://192.168.43.71/chatservice/chatlist",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": token
+                    },
+                    data: {
+                        "email": email
+                    }
+                }).then(
+                    function mySuccess(response) {
+                        data = response.data
+
+                        $scope.chatlist = data["chatlist"]
+
+                    },
+                    function myError(response) {
+                        alert("[CreateChat] " + response.status + response.data);
+                    }
+                );
+            }
+
+            $scope.show_profile = function (profile_id) {
+                $scope.open(profile_id)
 
             }
+            $scope.open = function (user_id) {
+                $http({
+                    method: "GET",
+                    url: "http://192.168.43.71/chatservice/userprofile",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": token
+                    },
+                    params: {
+                        "user_id": user_id
+                    }
+                }).then(
+                    function mySuccess(response) {      
+                        $scope.data = response.data
+                        console.log(data)
+                    },
+                    function myError(response) {
+                        alert("[UserProfile] " + response.status + response.data);
+                    }
+                );
+
+                var $uibModalInstance = $uibModal.open({
+                    resolve: {
+                        items: function () {
+                            return $scope.data;
+                        }
+                    },
+                    scope: $scope,
+                    template: `
+                            <div class="page-header">
+                                <h1>&nbsp&nbsp&nbsp&nbsp&nbspUser Profile</h1>
+                            </div>
+                                <div style="margin:5%">
+                                    Email : {{data['email']}} 
+                                    <br><br>
+                                    Name: {{data['display_name']}}
+                                    <br><br>
+                                    About: {{data['about']}}
+                                    <br><br>
+                                    Last Seen: {{data['last_seen']}}
+                                 </div>
+                            `
+                });
+                
+            }
+
+
+
         });
+
     </script>
 </body>
-
 </html>

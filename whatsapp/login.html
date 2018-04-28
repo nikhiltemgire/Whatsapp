@@ -9,8 +9,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
 
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  
 </head>
 
 <body ng-app="loginservice">
@@ -50,7 +52,7 @@
       $scope.login = function () {
         $http({
           method: "POST",
-          url: "http://192.168.0.102/chatservice/authenticate",
+          url: "http://192.168.43.71/chatservice/authenticate",
           header: {
             "Content-Type": "application/json"
           },
@@ -60,23 +62,22 @@
           }
         }).then(
           function mySuccess(response) {
-			localStorage.setItem("token", response.data)
-            alert("logged in")
-			$window.location.href = "/whatsapp/chatservice.html"
+            	localStorage.setItem("token", response.data)
+            	alert("logged in")
+            	$window.location.href = "/whatsapp/chatservice.html"
           },
           function myError(response) {
             if (response.status == 400)
               alert("Invalid Email/Password");
             else 
-              alert("Error!" + response.status + response.data);
-            // alert(response.data.response);
+              alert(response.data);
           });
       }
 
       $scope.register = function () {
         $http({
           method: "POST",
-          url: "http://192.168.0.102/chatservice/users",
+          url: "http://192.168.43.71/chatservice/users",
           header: {
             "Content-Type": "application/json"
           },
@@ -86,7 +87,7 @@
           }
         }).then(
           function onSuccess(response) {
-            alert("Registeration Complete");
+            alert("You have been registered. Please Complete the form on next page");
 
 			localStorage.setItem("email", $scope.email)
 			localStorage.setItem("id", response.data)

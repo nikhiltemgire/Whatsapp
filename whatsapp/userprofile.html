@@ -9,7 +9,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script> -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  
 
 </head>
 
@@ -36,7 +39,6 @@
       <div class="text-center">
         <button type="button" class="btn btn-primary" ng-click="createProfile()">Create Profile</button>
       </div>
-      <!-- {{data['response']['token']}} -->
     </div>
   </div>
 
@@ -49,7 +51,7 @@
         $scope.createProfile = function() {
             $http({
                 method: "POST",
-                url: "http://192.168.0.102/chatservice/userprofile",
+                url: "http://192.168.43.71/chatservice/userprofile",
                 header: {
                     "Content-Type": "application/json"
                 },
