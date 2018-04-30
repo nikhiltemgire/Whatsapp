@@ -8,14 +8,14 @@ import (
 
 func main() {
 
-	p := servicehandlers.PingHandler{}
+	// p := servicehandlers.PingHandler{}
 	a := servicehandlers.AuthenticateHandler{}
 	u := servicehandlers.UserHandler{}
 	up := servicehandlers.UserProfileHandler{}
 	cl := servicehandlers.ChatListHandler{}
 	m := servicehandlers.MessageHandler{}
 
-	http.Handle("/ping", p)
+	// http.Handle("/ping", p)
 	http.Handle("/chatservice/authenticate", a)
 	http.Handle("/chatservice/users", u)
 	http.Handle("/chatservice/userprofile", up)
