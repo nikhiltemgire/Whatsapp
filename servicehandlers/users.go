@@ -1,11 +1,6 @@
 package servicehandlers
 
 import (
-<<<<<<< HEAD:servicehandlers/users.go
-	"fmt"
-	"net/http"
-=======
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988:servicehandlers/users.go
 	"Whatsapp/dao"
 	"encoding/json"
 	"net/http"
@@ -48,8 +43,6 @@ func (p UserHandler) Post(r *http.Request) (string, int) {
 		return "Unprocessable Entity", 422
 	}
 
-<<<<<<< HEAD:servicehandlers/users.go
-=======
 	id := bson.NewObjectId()
 	success := dao.CreateUser(id, payload.Email, payload.Password)
 
@@ -57,6 +50,5 @@ func (p UserHandler) Post(r *http.Request) (string, int) {
 		return id.Hex(), 200
 	}
 	return "Internal Server Error", 500
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988:servicehandlers/users.go
 
 }

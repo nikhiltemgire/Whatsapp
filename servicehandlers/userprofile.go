@@ -1,15 +1,6 @@
 package servicehandlers
 
 import (
-<<<<<<< HEAD
-
-	"fmt"
-	"net/http"
-	_ "Whatsapp/dao"
-	_ "encoding/json"
-)
-
-=======
 	"Whatsapp/dao"
 	"Whatsapp/utils"
 	"encoding/json"
@@ -20,7 +11,6 @@ import (
 )
 
 // UserProfileHandler : UserProfile Handler
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988
 type UserProfileHandler struct {
 }
 
@@ -28,13 +18,6 @@ func (p UserProfileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	methodRouter(p, w, r)
 }
 
-<<<<<<< HEAD
-func (p UserProfileHandler) Get(r *http.Request) (string, int) {
-	fmt.Println("GET params were:", r.URL.Query()); 
-	return "GET Called", 200	
-}
-
-=======
 // Get : UserProfileHandler Get Method
 func (p UserProfileHandler) Get(r *http.Request) (string, int) {
 
@@ -60,45 +43,18 @@ func (p UserProfileHandler) Get(r *http.Request) (string, int) {
 }
 
 // Put : UserProfileHandler Put Method
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988
 func (p UserProfileHandler) Put(r *http.Request) (string, int) {
 	return "PUT Called", 200
 }
 
-<<<<<<< HEAD
-
-
-func (p UserProfileHandler) Post(r *http.Request) (string, int) {
-	/*
-	var payload dao.User
-=======
 // Post : UserProfileHandler Post Method
 func (p UserProfileHandler) Post(r *http.Request) (string, int) {
 
 	var payload dao.UserProfile
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&payload)
 
 	if err != nil {
-<<<<<<< HEAD
-		//return "BAD Request", 400
-		panic(err)
-	}
-
-
-	user := dao.GetUserByEmail(payload.Email)
-	if (dao.User{}) != user {					// User exists
-		return "Unprocessable Entity" , 422
-	}
-
-
-	dao.CreateUser(payload.Email, payload.Password)
-	// return token, 200
-	*/
-	return "POST Called", 200 
-}
-=======
 		panic(err)
 	}
 
@@ -121,4 +77,3 @@ func (p UserProfileHandler) Post(r *http.Request) (string, int) {
 	}
 	return "Internal Server Error", 500
 }
->>>>>>> 295d5d29d9ff944eec7cd64695e5eae6ef32c988
