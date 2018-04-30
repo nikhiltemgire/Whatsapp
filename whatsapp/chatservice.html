@@ -9,7 +9,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js">
+    </script>
 
     
 </head>
@@ -28,13 +29,15 @@
                     <table class="table table-bordered" ng-model="chatlist" style="border: 3px">
                         <tr>
                             <th> ChatList</th>
-                            <th> <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addChatModal">Create New Chat</button> </th>
+                            <th> <button type="button" class="btn btn-default" data-toggle="modal" 
+                                data-target="#addChatModal">Create New Chat</button> </th>
                         </tr>
                         <tr ng-repeat="chat in chatlist">
-                            <td> {{chat["disp_name"]}}</td>
+                            <td ng-click="show_profile(chat['profile_id'])"> {{chat["disp_name"]}}</td>
                             <!-- <td> {{chat["id"]}}</td> -->
-                            <td> Message</td>
-                            <td ng-click="show_profile(chat['profile_id'])">Profile</td>
+                            <td ng-click="div_controller(chat['id'])"> Message</td>
+                            <!-- <td ng-click="getMessages(chat['id'])"> Message</td> -->
+                            <!-- <td ng-click="show_profile(chat['profile_id'])">Profile</td> -->
                         </tr>
                     </table>
                 </div>
@@ -43,19 +46,30 @@
 
 
             <div class="col-md-8" class="tab-container" >
-                <div ng-repeat="chat in chatlist"
-                 ng-model="chat['id']" ng-init="loadChats(chat['id'])"
-                 ng-controller="chatCtrl" style="height: 80%; ">
 
-                    <div ng-repeat="for msg in messages['chat_id':chat['id']]">
-                        
+                <div ng-repeat="chat in chatlist"  ng-show="show_divs[chat['id']]">
+                
+                    <div class="panel panel-default" id="div_{{chat['id']}}" 
+                    style="height: 80%; position:relative;" >
+                        <div class="panel-heading">{{chat['disp_name']}}</div>
+                        <div class="panel-body" style="height: 75%; overflow: auto;">
+                            <div ng-repeat="msg in all_messages[chat['id']]">
+                                <h5>[{{msg['sender_name']}}]: {{msg['content']}}</h5>
+                            </div>
+
+                            <div class="input-group col-xs-11"  style="position:absolute; bottom:4%">
+                                <input type="text" class="form-control " id="input_{{chat['id']}}"
+                                    placeholder="Enter Message">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-primary" 
+                                        ng-click="sendMessage(chat['id'])">
+                                        <i class="glyphicon glyphicon-send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                     <input class="form-control" type="text" id="content">
-                     <button class="btn btn-primary" ng-click="sendMessage(chat['id'], document.getElementById('content').value)"> Send</button>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -90,9 +104,15 @@
         var app = angular.module("chatservice", ['ui.bootstrap']);
         
 
-        app.controller('chatCtrl', function ($scope, $http, $window, $uibModal) {
+        app.controller('chatCtrl', function ($scope, $http, $window,
+            $uibModal) {
+
+            $scope.all_messages = {};
+            $scope.show_divs = {};
+
+            $scope.current_div = null;
+
             var token = localStorage.getItem("token")
-            // $scope.messages = []
             
             $http({
                 method: "GET",
@@ -103,73 +123,25 @@
                 }
             }).then(
                 function mySuccess(response) {
-                    data = response.data
-                    
+                    data = response.data   
                     $scope.chatlist = data["chatlist"]
+
+                    $scope.chatlist.forEach(chat => {
+                        // console.log(chat['id'])
+                        $scope.getMessages(chat['id'])
+                        $scope.show_divs[chat['id']] = false
+                        
+                    });
 
                 },
                 function myError(response) {
-                    console.log(localStorage.getItem("token"))
+                    // console.log(localStorage.getItem("token"))
                     alert("[Chatlist] " + response.status+" "+ response.data);
                 }
             );
 
-            $scope.loadChats = function (chat_id) {
-                $http({
-                    method: "GET",
-                    url: "http://192.168.43.71/chatservice/messages",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "token": localStorage.getItem("token")
-                    },
-                    params: {
-                        "chat_id": chat_id
-                    }
-                }).then(
-                    function mySuccess(response) {
-                        $scope.messages.push({
-                                "chat_id": chat_id,
-                                "messages" : response.data
-                            })
-                        console.log($scope.messages)
-                    },
-                    function myError(response) {
-                        alert(response.status + " " + response.data);
-                    }
-                );
 
-            }
-
-            $scope.sendMessage = function (chat_id, content) {
-                alert(content)
-                 $http({
-                    method: "POST",
-                    url: "http://192.168.43.71/chatservice/messages",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "token": localStorage.getItem("token")
-                    },
-                    data: {
-                        "chat_id": chat_id,
-                        "type": 1,
-                        "content": "xxx",
-                        "sender_name": ""
-                    }
-                }).then(
-                    function mySuccess(response) {
-                        $scope.messages.push({
-                            "chat_id": chat_id,
-                            "messages": response.data
-                        })
-                        console.log($scope.messages)
-                    },
-                    function myError(response) {
-                        alert(response.status + " " + response.data);
-                    }
-                );
-                
-            }
-
+            // Chatlist API calls
 
             createChat = function(email) {
                 $http({
@@ -213,7 +185,7 @@
                 }).then(
                     function mySuccess(response) {      
                         $scope.data = response.data
-                        console.log(data)
+                        // console.log(data)
                     },
                     function myError(response) {
                         alert("[UserProfile] " + response.status + response.data);
@@ -246,9 +218,76 @@
             }
 
 
+            // Messages API CALLS
+
+            $scope.getMessages = function (chat_id) {
+                $http({
+                    method: "GET",
+                    url: "http://192.168.43.71/chatservice/messages",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": localStorage.getItem("token")
+                    },
+                    params: {
+                        "chat_id": chat_id
+                    }
+                }).then(
+                    function mySuccess(response) {
+                        $scope.all_messages[chat_id] = response.data
+                        $scope.messages = response.data
+                        // console.log("[Messages]", $scope.messages)
+                    },
+                    function myError(response) {
+                        alert(response.status + " " + response.data);
+                    }
+                );
+
+                // return messages
+
+            }
+
+            $scope.sendMessage = function (chat_id) {
+                content = document.getElementById("input_" + chat_id).value
+
+                $http({
+                    method: "POST",
+                    url: "http://192.168.43.71/chatservice/messages",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": localStorage.getItem("token")
+                    },
+                    data: {
+                        "chat_id": chat_id,
+                        "type": 1,
+                        "content": content,
+                    }
+                }).then(
+                    function mySuccess(response) {
+                        document.getElementById("input_" + chat_id).value = ""
+                    },
+                    function myError(response) {
+                        alert(response.status + " " + response.data);
+                    }
+                );
+
+            }
+
+            // Div Controller
+
+            $scope.div_controller = function (chat_id) {
+
+                if ($scope.current_div != null) {
+                    $scope.show_divs[$scope.current_div] = false
+                }
+
+                $scope.current_div = chat_id
+                $scope.show_divs[chat_id] = true
+            }
+       
 
         });
 
     </script>
 </body>
 </html>
+
